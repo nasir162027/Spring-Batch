@@ -7,7 +7,7 @@ import org.springframework.context.annotation.ComponentScan;
 
 @SpringBootApplication
 @EnableBatchProcessing
-@ComponentScan({"com.naba.config", "com.naba.service","com.naba.listener"})
+@ComponentScan({"com.naba.config", "com.naba.service","com.naba.listener","com.naba.listener"})
 public class SpringBatchApplication {
 
 	public static void main(String[] args) {

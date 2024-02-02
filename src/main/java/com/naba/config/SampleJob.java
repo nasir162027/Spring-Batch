@@ -2,6 +2,7 @@ package com.naba.config;
 
 
 import com.naba.listener.FirstJobListener;
+import com.naba.listener.FirstStepListener;
 import com.naba.service.FirstTasklet;
 import com.naba.service.SecondTasklet;
 import com.naba.service.ThirdTasklet;
@@ -34,6 +35,9 @@ public class SampleJob {
     @Autowired
     private FirstJobListener firstJobListener;
 
+    @Autowired
+    private FirstStepListener firstStepListener;
+
 
 
         @Bean
@@ -50,6 +54,7 @@ public class SampleJob {
     private Step firstStep(){
            return stepBuilderFactory.get("First Step")
                     .tasklet(firstTasklet)
+                   .listener(firstStepListener)
                     .build();
     }
 
