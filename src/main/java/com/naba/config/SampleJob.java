@@ -53,15 +53,15 @@ public class SampleJob {
 
 
 
-        //@Bean
-//        public Job firstJob(){
-//            return jobBuilderFactory.get("First Job")
-//                    .start(firstStep())
-//                    .next(secondStep())
-//                    .next(thirdStep())
-//                    .listener(firstJobListener)
-//                    .build();
-//        }
+        @Bean
+        public Job taskletJob(){
+            return jobBuilderFactory.get("Tasklet Job")
+                    .start(firstStep())
+                    .next(secondStep())
+                    .next(thirdStep())
+                    .listener(firstJobListener)
+                    .build();
+        }
 
 
     private Step firstStep(){
@@ -83,7 +83,7 @@ public class SampleJob {
     }
     @Bean
     public Job chunkJob() {
-        return jobBuilderFactory.get("chunk oriented job")
+        return jobBuilderFactory.get("Chunk oriented job")
                 .incrementer(new RunIdIncrementer())
                 .start(firstChunkStep())
                 .next(secondStep())
