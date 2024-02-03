@@ -3,13 +3,17 @@ package com.naba.config;
 
 import com.naba.listener.FirstJobListener;
 import com.naba.listener.FirstStepListener;
+import com.naba.processor.FirstItemProcessor;
+import com.naba.reader.FirstIItemReader;
 import com.naba.service.FirstTasklet;
 import com.naba.service.SecondTasklet;
 import com.naba.service.ThirdTasklet;
+import com.naba.writer.FirstItemWriter;
 import org.springframework.batch.core.Job;
 import org.springframework.batch.core.Step;
 import org.springframework.batch.core.configuration.annotation.JobBuilderFactory;
 import org.springframework.batch.core.configuration.annotation.StepBuilderFactory;
+import org.springframework.batch.core.launch.support.RunIdIncrementer;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -38,17 +42,26 @@ public class SampleJob {
     @Autowired
     private FirstStepListener firstStepListener;
 
+    @Autowired
+    private FirstIItemReader firstIItemReader;
+
+    @Autowired
+    private FirstItemProcessor firstItemProcessor;
+
+    @Autowired
+    private FirstItemWriter firstItemWriter;
 
 
-        @Bean
-        public Job firstJob(){
-            return jobBuilderFactory.get("First Job")
-                    .start(firstStep())
-                    .next(secondStep())
-                    .next(thirdStep())
-                    .listener(firstJobListener)
-                    .build();
-        }
+
+        //@Bean
+//        public Job firstJob(){
+//            return jobBuilderFactory.get("First Job")
+//                    .start(firstStep())
+//                    .next(secondStep())
+//                    .next(thirdStep())
+//                    .listener(firstJobListener)
+//                    .build();
+//        }
 
 
     private Step firstStep(){
@@ -68,4 +81,22 @@ public class SampleJob {
                 .tasklet(thirdTasklet)
                 .build();
     }
+    @Bean
+    public Job chunkJob() {
+        return jobBuilderFactory.get("chunk oriented job")
+                .incrementer(new RunIdIncrementer())
+                .start(firstChunkStep())
+                .next(secondStep())
+                .build();
+    }
+
+    private Step firstChunkStep(){
+        return stepBuilderFactory.get("First Chunk Step")
+                .<Integer,Long>chunk(3)
+                .reader(firstIItemReader)
+                .processor(firstItemProcessor)
+                .writer(firstItemWriter)
+                .build();
+    }
+
 }
