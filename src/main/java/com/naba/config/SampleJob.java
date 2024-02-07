@@ -21,6 +21,8 @@ import org.springframework.batch.item.file.mapping.DefaultLineMapper;
 import org.springframework.batch.item.file.mapping.FieldSetMapper;
 import org.springframework.batch.item.file.transform.DelimitedLineTokenizer;
 import org.springframework.batch.item.file.transform.LineTokenizer;
+import org.springframework.batch.item.json.JacksonJsonObjectReader;
+import org.springframework.batch.item.json.JsonItemReader;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -104,7 +106,8 @@ public class SampleJob {
     private Step firstChunkStep() {
         return stepBuilderFactory.get( "First Chunk Step" )
                 .<Student,Student>chunk( 3)
-                .reader( flatFileItemReader() )
+                //.reader( flatFileItemReader() )
+                .reader( jsonItemReader() )
                 //.processor( firstItemProcessor )
                 .writer( firstItemWriter )
                 .build();
@@ -131,6 +134,15 @@ public class SampleJob {
         } );
         flatFileItemReader.setLinesToSkip( 1 );
         return flatFileItemReader;
+    }
+
+    public JsonItemReader<Student> jsonItemReader(){
+        JsonItemReader<Student> jsonItemReader=new JsonItemReader<>();
+        jsonItemReader.setResource(new FileSystemResource(new File("E:\\Spring Project\\Spring-Batch-Application\\src\\main\\resources\\InputFiles\\students.json")));
+        jsonItemReader.setJsonObjectReader( new JacksonJsonObjectReader<>(Student.class) );
+        jsonItemReader.setMaxItemCount(8);
+        jsonItemReader.setCurrentItemCount(3);
+        return jsonItemReader;
     }
 
 }
