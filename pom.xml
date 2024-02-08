@@ -48,6 +48,25 @@
 			<artifactId>spring-batch-test</artifactId>
 			<scope>test</scope>
 		</dependency>
+<!--		<dependency>-->
+<!--			<artifactId>jboss-jaxb-api_2.2_spec</artifactId>-->
+<!--			<groupId>org.jboss.spec.javax.xml.bind</groupId>-->
+<!--			<version>1.0.5.Final</version>-->
+<!--		</dependency>-->
+		<dependency>
+			<artifactId>spring-oxm</artifactId>
+			<groupId>org.springframework</groupId>
+		</dependency>
+		<dependency>
+			<artifactId>jakarta.xml.bind-api</artifactId>
+			<groupId>jakarta.xml.bind</groupId>
+		</dependency>
+
+		<dependency>
+			<groupId>org.glassfish.jaxb</groupId>
+			<artifactId>jaxb-runtime</artifactId>
+		</dependency>
+
 	</dependencies>
 
 	<build>

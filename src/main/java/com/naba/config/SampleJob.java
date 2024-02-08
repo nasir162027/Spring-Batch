@@ -4,6 +4,7 @@ package com.naba.config;
 import com.naba.listener.FirstJobListener;
 import com.naba.listener.FirstStepListener;
 import com.naba.model.Student;
+import com.naba.model.StudentXml;
 import com.naba.processor.FirstItemProcessor;
 import com.naba.reader.FirstIItemReader;
 import com.naba.service.FirstTasklet;
@@ -23,10 +24,12 @@ import org.springframework.batch.item.file.transform.DelimitedLineTokenizer;
 import org.springframework.batch.item.file.transform.LineTokenizer;
 import org.springframework.batch.item.json.JacksonJsonObjectReader;
 import org.springframework.batch.item.json.JsonItemReader;
+import org.springframework.batch.item.xml.StaxEventItemReader;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.core.io.FileSystemResource;
+import org.springframework.oxm.jaxb.Jaxb2Marshaller;
 
 import java.io.File;
 
@@ -105,9 +108,10 @@ public class SampleJob {
 
     private Step firstChunkStep() {
         return stepBuilderFactory.get( "First Chunk Step" )
-                .<Student,Student>chunk( 3)
+                .<StudentXml,StudentXml>chunk( 3)
                 //.reader( flatFileItemReader() )
-                .reader( jsonItemReader() )
+                //.reader( jsonItemReader() )
+                .reader(staxEventItemReader())
                 //.processor( firstItemProcessor )
                 .writer( firstItemWriter )
                 .build();
@@ -143,6 +147,19 @@ public class SampleJob {
         jsonItemReader.setMaxItemCount(8);
         jsonItemReader.setCurrentItemCount(3);
         return jsonItemReader;
+    }
+
+    public StaxEventItemReader<StudentXml> staxEventItemReader(){
+        StaxEventItemReader<StudentXml> staxEventItemReader=new StaxEventItemReader<>();
+        staxEventItemReader.setResource(new FileSystemResource( new File("E:\\Spring Project\\Spring-Batch-Application\\src\\main\\resources\\InputFiles\\students.xml") ));
+        staxEventItemReader.setFragmentRootElementName("student");
+        staxEventItemReader.setUnmarshaller(new Jaxb2Marshaller(){{
+            setClassesToBeBound(StudentXml.class);
+        }
+        });
+        staxEventItemReader.setCurrentItemCount(3);
+
+        return staxEventItemReader;
     }
 
 }
