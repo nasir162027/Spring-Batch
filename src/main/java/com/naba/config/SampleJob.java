@@ -4,6 +4,7 @@ package com.naba.config;
 import com.naba.listener.FirstJobListener;
 import com.naba.listener.FirstStepListener;
 import com.naba.model.Student;
+import com.naba.model.StudentJdbc;
 import com.naba.model.StudentXml;
 import com.naba.processor.FirstItemProcessor;
 import com.naba.reader.FirstIItemReader;
@@ -16,6 +17,7 @@ import org.springframework.batch.core.Step;
 import org.springframework.batch.core.configuration.annotation.JobBuilderFactory;
 import org.springframework.batch.core.configuration.annotation.StepBuilderFactory;
 import org.springframework.batch.core.launch.support.RunIdIncrementer;
+import org.springframework.batch.item.database.JdbcCursorItemReader;
 import org.springframework.batch.item.file.FlatFileItemReader;
 import org.springframework.batch.item.file.mapping.BeanWrapperFieldSetMapper;
 import org.springframework.batch.item.file.mapping.DefaultLineMapper;
@@ -29,8 +31,10 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.core.io.FileSystemResource;
+import org.springframework.jdbc.core.BeanPropertyRowMapper;
 import org.springframework.oxm.jaxb.Jaxb2Marshaller;
 
+import javax.sql.DataSource;
 import java.io.File;
 
 @Configuration
@@ -65,6 +69,9 @@ public class SampleJob {
 
     @Autowired
     private FirstItemWriter firstItemWriter;
+
+    @Autowired
+    private DataSource dataSource;
 
 
     @Bean
@@ -108,10 +115,11 @@ public class SampleJob {
 
     private Step firstChunkStep() {
         return stepBuilderFactory.get( "First Chunk Step" )
-                .<StudentXml,StudentXml>chunk( 3)
+                .<StudentJdbc,StudentJdbc>chunk( 3)
                 //.reader( flatFileItemReader() )
                 //.reader( jsonItemReader() )
-                .reader(staxEventItemReader())
+                //.reader(staxEventItemReader())
+                .reader(jdbcJdbcCursorItemReader())
                 //.processor( firstItemProcessor )
                 .writer( firstItemWriter )
                 .build();
@@ -160,6 +168,21 @@ public class SampleJob {
         staxEventItemReader.setCurrentItemCount(3);
 
         return staxEventItemReader;
+    }
+
+    public JdbcCursorItemReader<StudentJdbc> jdbcJdbcCursorItemReader(){
+        JdbcCursorItemReader<StudentJdbc> jdbcJdbcCursorItemReader=new JdbcCursorItemReader<>();
+        jdbcJdbcCursorItemReader.setDataSource(dataSource);
+        jdbcJdbcCursorItemReader.setSql("select id,first_name as firstName,last_name as lastName, email from student");
+
+        jdbcJdbcCursorItemReader.setRowMapper(new BeanPropertyRowMapper<StudentJdbc>(){
+            {
+                setMappedClass( StudentJdbc.class);
+            }
+        });
+        jdbcJdbcCursorItemReader.setCurrentItemCount(5);
+        jdbcJdbcCursorItemReader.setMaxItemCount(15);
+        return jdbcJdbcCursorItemReader;
     }
 
 }
