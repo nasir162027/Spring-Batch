@@ -28,8 +28,11 @@ import org.springframework.batch.item.json.JacksonJsonObjectReader;
 import org.springframework.batch.item.json.JsonItemReader;
 import org.springframework.batch.item.xml.StaxEventItemReader;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.context.properties.ConfigurationProperties;
+import org.springframework.boot.jdbc.DataSourceBuilder;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.context.annotation.Primary;
 import org.springframework.core.io.FileSystemResource;
 import org.springframework.jdbc.core.BeanPropertyRowMapper;
 import org.springframework.oxm.jaxb.Jaxb2Marshaller;
@@ -70,8 +73,21 @@ public class SampleJob {
     @Autowired
     private FirstItemWriter firstItemWriter;
 
-    @Autowired
-    private DataSource dataSource;
+//    @Autowired
+//    private DataSource dataSource;
+    @Bean
+    @Primary
+    @ConfigurationProperties(prefix ="spring.datasource")
+    public DataSource dataSource(){
+        return DataSourceBuilder.create().build();
+    }
+
+    @Bean
+    @ConfigurationProperties(prefix ="spring.universitydatasource")
+    public DataSource universitydataSource(){
+        return DataSourceBuilder.create().build();
+    }
+
 
 
     @Bean
@@ -172,7 +188,7 @@ public class SampleJob {
 
     public JdbcCursorItemReader<StudentJdbc> jdbcJdbcCursorItemReader(){
         JdbcCursorItemReader<StudentJdbc> jdbcJdbcCursorItemReader=new JdbcCursorItemReader<>();
-        jdbcJdbcCursorItemReader.setDataSource(dataSource);
+        jdbcJdbcCursorItemReader.setDataSource(universitydataSource());
         jdbcJdbcCursorItemReader.setSql("select id,first_name as firstName,last_name as lastName, email from student");
 
         jdbcJdbcCursorItemReader.setRowMapper(new BeanPropertyRowMapper<StudentJdbc>(){
