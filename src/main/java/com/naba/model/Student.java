@@ -4,16 +4,16 @@ package com.naba.model;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
-@JsonIgnoreProperties(ignoreUnknown = true)
+//@JsonIgnoreProperties(ignoreUnknown = true)
 public class Student {
 
     private Long id;
 
-    @JsonProperty("first_name")
+    //@JsonProperty("first_name")
     private String firstName;
 
 
-    //private String lastName;
+    private String lastName;
     private String email;
 
     public Long getId() {
@@ -32,13 +32,13 @@ public class Student {
         this.firstName = firstName;
     }
 
-//    public String getLastName() {
-//        return lastName;
-//    }
-//
-//    public void setLastName(String lastName) {
-//        this.lastName = lastName;
-//    }
+    public String getLastName() {
+        return lastName;
+    }
+
+    public void setLastName(String lastName) {
+        this.lastName = lastName;
+    }
 
     public String getEmail() {
         return email;

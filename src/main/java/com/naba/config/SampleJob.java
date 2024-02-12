@@ -19,6 +19,7 @@ import org.springframework.batch.core.configuration.annotation.StepBuilderFactor
 import org.springframework.batch.core.launch.support.RunIdIncrementer;
 import org.springframework.batch.item.database.JdbcCursorItemReader;
 import org.springframework.batch.item.file.FlatFileItemReader;
+import org.springframework.batch.item.file.FlatFileParseException;
 import org.springframework.batch.item.file.mapping.BeanWrapperFieldSetMapper;
 import org.springframework.batch.item.file.mapping.DefaultLineMapper;
 import org.springframework.batch.item.file.mapping.FieldSetMapper;
@@ -131,13 +132,16 @@ public class SampleJob {
 
     private Step firstChunkStep() {
         return stepBuilderFactory.get( "First Chunk Step" )
-                .<StudentJdbc,StudentJdbc>chunk( 3)
-                //.reader( flatFileItemReader() )
+                .<Student,Student>chunk( 3)
+                .reader( flatFileItemReader() )
                 //.reader( jsonItemReader() )
                 //.reader(staxEventItemReader())
-                .reader(jdbcJdbcCursorItemReader())
+                //.reader(jdbcJdbcCursorItemReader())
                 //.processor( firstItemProcessor )
                 .writer( firstItemWriter )
+                .faultTolerant()
+                .skip( FlatFileParseException.class)
+                .skipLimit(4)
                 .build();
     }
 
@@ -151,6 +155,7 @@ public class SampleJob {
                 setLineTokenizer( new DelimitedLineTokenizer() {
                     {
                         setNames( "ID", "First name", "Last name", "Email" );
+                        //setDelimiter("|");
                     }
                 } );
                 setFieldSetMapper( new BeanWrapperFieldSetMapper<Student>() {
@@ -168,8 +173,8 @@ public class SampleJob {
         JsonItemReader<Student> jsonItemReader=new JsonItemReader<>();
         jsonItemReader.setResource(new FileSystemResource(new File("E:\\Spring Project\\Spring-Batch-Application\\src\\main\\resources\\InputFiles\\students.json")));
         jsonItemReader.setJsonObjectReader( new JacksonJsonObjectReader<>(Student.class) );
-        jsonItemReader.setMaxItemCount(8);
-        jsonItemReader.setCurrentItemCount(3);
+//        jsonItemReader.setMaxItemCount(8);
+//        jsonItemReader.setCurrentItemCount(3);
         return jsonItemReader;
     }
 
